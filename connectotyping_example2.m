@@ -22,19 +22,29 @@ options.rep_svd=10; % how many times to repeat the svd decomposition to maximize
 options.rep_model=1; % if number of frames not empty, how many times recalculate the model based on the minimum required frames
 inc_frames=[];
 
-%% connectotype 
-for i=1:n_part
+%% connectotype
+myCluster = parcluster('local');
+poolobj = parpool(myCluster.NumWorkers);
+parfor i=1:n_part
     display(['Running participant ' num2str(i)])
     y=TC{i};
     TC_no_AC_LS{i}=remove_autocorrelation(y,n_ar);
-    
-    signal=TC_no_AC_LS{i}; % pick the signal with no autocorrelation
+   
+    signal = TC_no_AC_LS{i}; % pick the signal with no autocorrelation
+    frameSV(i).signal = signal;
     [SV, R]=model_tsvd(signal,options); %calculate the SVD
-    options.min_frames=size(signal,1); %how many frames to include in the model
-    options.SV=SV; %assign SV to options
-    m(:,:,i)=make_model_tsvd(signal,options); % calculate the model
+   
+    frameSV(i).min_frames = size(signal, 1);
+    frameSV(i).SV = SV;
 end
+delete(poolobj);
 
+for i = 1 : n_part
+    options.min_frames= frameSV(i).min_frames; %how many frames to include in the model
+    options.SV = frameSV(i).SV; %assign SV to options
+    signal = frameSV(i).signal;
+    m(:,:,i) = make_model_tsvd(signal, options); % calculate the model
+end
 
 %% predict self and others (apply each model to all the participants)
 R_mean=zeros(n_part); % to save average R
