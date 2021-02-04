@@ -9,7 +9,9 @@ inc_frames=round(frames*perc(1));
 max_SV=min([inc_frames rois-1]);
 % SV = zeros(rep,max_SV,rois);
 R  = zeros(rep,rois,max_SV);
-for i=1:rep
+myCluster = parcluster('local');
+poolobj = parpool(myCluster.NumWorkers);
+parfor i=1:rep
     ix=randperm(frames);
 %     ix=randi(frames,[1 frames]); %bootstraping, allowing repeated data
     ix_in=ix(1:inc_frames);
@@ -37,7 +39,7 @@ for i=1:rep
     end
     display(['SVD decomposition, ' num2str(i) ' out of ' num2str(rep)])
 end
-
+delete(poolobj);
 
 
 mr=squeeze(mean(R,1));
