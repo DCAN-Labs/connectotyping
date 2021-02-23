@@ -6,3 +6,4 @@ model_tsvd.prj
 profile_results/
 remove_autocorrelation.prj
 .gitignore~
+*~
