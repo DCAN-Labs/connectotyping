@@ -1,17 +1,20 @@
-[p, ~, mu] = polyfit(T.roi_count, T.time_in_seconds, 5);
-bigger_rois = reshape([1024, 2048], [2, 1]);
-size(bigger_rois)
-size(roi_count)
-extended_roi_count = [roi_count; bigger_rois];
+M = readmatrix('rois_versus_time.csv');
+[rowCount, colCount] = size(M);
+mTest = M(1 : rowCount - 1, 1:4);
+T = array2table(mTest);
+T.Properties.VariableNames = {'roi_count' 'time_in_seconds' 'corr' 'svd'};
+roi_count_to_predict = M(rowCount, 1);
+actual_runtime = M(rowCount, 4);
 
-f = polyval(p, roi_count, [], mu);
-hold on
-plot(roi_count, f,'DisplayName','Fitted polynomial runtimes')
-title('Fitted polynomial of computation time')
-xlabel('Number of ROIs') 
-ylabel('Computation time (in seconds)') 
-legend('Location', 'best')
-
-hold off
-
-polyval(p, 92000, [], mu)
+least_error = realmax;
+best_n = -1;
+for n = 1 : 5
+    [p, ~, mu] = polyfit(T.roi_count, T.time_in_seconds, n);
+    predicted_val = polyval(p, roi_count_to_predict, [], mu);
+    error = abs(actual_runtime - predicted_val);
+    if error < least_error
+        least_error = error;
+        best_n = n;
+    end
+end
+disp(best_n);
