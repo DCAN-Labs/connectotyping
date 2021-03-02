@@ -12,6 +12,6 @@ on the <i>n</i>th value, we find that the computation time is linear in the
 number of ROIs.  Code determining this is in [*fit_runtime.m*](./fit_runtime.m).  However, this cannot be the case.  The complexity is in 
 [<i>O(min(m * n^2, m^2 * n))</i>](https://mathoverflow.net/a/221216/33176).  (Our estimate that the time is linear is probably a result of our small sample size). 
 
-The first step in optimizing the Connectotyping code is to replace the MATLAB
-calls to `svd` with calls to the Gnu Scientific Library's (GSL) C implementation
-of SVD.
+The first step in optimizing the Connectotyping code is to [replace the MATLAB
+calls to `svd`](https://www.mathworks.com/help/coder/ug/call-cc-code-from-matlab-code.html#mw_1395a54a-5181-430b-bbca-5f58882527d5) with calls to the [Gnu Scientific Library's (GSL) C implementation
+of SVD](https://www.gnu.org/software/gsl/doc/html/linalg.html#singular-value-decomposition).
