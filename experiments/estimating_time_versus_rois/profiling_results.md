@@ -9,7 +9,7 @@ method is the bottleneck. This is also illustrated in this plot:
 
 By using `polyfit` on the first <i>n - 1</i> values and testing `polyval`
 on the <i>n</i>th value, we find that the computation time is linear in the 
-number of ROIs.  Code determining this is in [*fit_runtime.m*](./fit_run_time.m).  However, this cannot be the case.  The complexity is in 
+number of ROIs.  Code determining this is in [*fit_runtime.m*](./fit_runtime.m).  However, this cannot be the case.  The complexity is in 
 [<i>O(min(m * n^2, m & 2) * n)](https://mathoverflow.net/a/221216/33176).
 
 The first step in optimizing the Connectotyping code is to replace the MATLAB
