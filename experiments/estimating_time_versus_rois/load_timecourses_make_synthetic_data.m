@@ -1,10 +1,10 @@
-wd='/panfs/roc/groups/4/miran045/shared/projects/connectotyping/Experiments/estimating_time_versus_rois';
+wd = '/panfs/roc/groups/4/miran045/reine097/projects/connectotyping/experiments/estimating_time_versus_rois';
 cd(wd)
 %% load y
 load y
 
 %% get correlated data
-n_rois = 2048; % change this number to redo synthetic correlated data
+n_rois = 1024; % change this number to redo synthetic correlated data
 for ii = 1:1
     fake_y=scale_rois(y,n_rois);
     whos y fake_y
@@ -25,6 +25,7 @@ for ii = 1:1
     TC_no_AC_LS=remove_autocorrelation(fake_y,n_ar);
     %% Example 1.1. Calculate the model and make predictions
     signal=TC_no_AC_LS; % pick the signal with no autocorrelation
+    % SV is the number of singular values used
     [SV, R]=model_tsvd(signal,options); %calculate the SVD
     options.min_frames=size(signal,1); %how many frames to include in the model
     options.SV=SV; %assign SV to options
