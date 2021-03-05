@@ -1,2 +1,5 @@
 *.*~
 list.txt
+data/
+*.o
+src/c/project

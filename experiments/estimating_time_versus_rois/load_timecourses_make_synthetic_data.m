@@ -4,7 +4,7 @@ cd(wd)
 load y
 
 %% get correlated data
-n_rois = 1024; % change this number to redo synthetic correlated data
+n_rois = 2048; % change this number to redo synthetic correlated data
 for ii = 1:1
     fake_y=scale_rois(y,n_rois);
     whos y fake_y

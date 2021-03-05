@@ -17,7 +17,7 @@ int calculate_svd_from_file(void) {
   int m = 4;
   int n = 5;
 
-  char chunk[128];
+  char chunk[432];
 
   const char s[2] = ",";
   int i = 0;
