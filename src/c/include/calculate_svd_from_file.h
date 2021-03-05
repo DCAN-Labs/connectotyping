@@ -11,6 +11,6 @@
 
 int run_svd(const gsl_matrix * M);
 void pretty_print(const gsl_matrix * M);
-int calculate_svd_from_file(void);
+int calculate_svd_from_file(char* fileName);
 
 #endif // RUN_SVD_H
