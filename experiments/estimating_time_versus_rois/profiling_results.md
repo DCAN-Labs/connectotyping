@@ -16,4 +16,6 @@ The first step in optimizing the Connectotyping code is to [replace the MATLAB
 calls to `svd`](https://www.mathworks.com/help/coder/ug/call-cc-code-from-matlab-code.html#mw_1395a54a-5181-430b-bbca-5f58882527d5) with calls to the [Gnu Scientific Library's (GSL) C implementation
 of SVD](https://www.gnu.org/software/gsl/doc/html/linalg.html#singular-value-decomposition).
 
-Using the GSL C version of singular value decomposition is much faster.  Testing code for MATLAB is in [test_runtime.m](test_runtime.m).
+Using the GSL C version of singular value decomposition is much faster.  Testing code for MATLAB is in [test_runtime.m](test_runtime.m).  Testing code for C is in
+
+* [project.c][../../src/c/project.c]
