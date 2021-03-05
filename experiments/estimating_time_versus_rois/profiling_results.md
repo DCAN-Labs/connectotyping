@@ -19,3 +19,4 @@ of SVD](https://www.gnu.org/software/gsl/doc/html/linalg.html#singular-value-dec
 Using the GSL C version of singular value decomposition is much faster.  Testing code for MATLAB is in [test_runtime.m](test_runtime.m).  Testing code for C is in
 
 * [project.c](../../src/c/src/project.c)
+* [calculate_svd_from_file.c](../../src/c/src/calculate_svd_from_file.c)
