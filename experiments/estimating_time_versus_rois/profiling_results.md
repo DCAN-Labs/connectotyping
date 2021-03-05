@@ -20,3 +20,5 @@ Using the GSL C version of singular value decomposition is much faster.  Testing
 
 * [project.c](../../src/c/src/project.c)
 * [calculate_svd_from_file.c](../../src/c/src/calculate_svd_from_file.c)
+
+We might also check the [Template Numerical Toolkit](https://math.nist.gov/tnt/).  Although I'm not sure that's necessary given how fast the C version is.
