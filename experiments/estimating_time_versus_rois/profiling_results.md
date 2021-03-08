@@ -1,4 +1,6 @@
-# Profiling results
+# Speeding up Connectotyping
+
+## Profiling results
 
 Profiling results are contained in 
 [rois_versus_time.csv](./rois_versus_time.csv).  When the number of ROIs is less than or equal to 512, the `corr` method is 
@@ -22,3 +24,32 @@ Using the GSL C version of singular value decomposition is much faster.  Testing
 * [calculate_svd_from_file.c](../../src/c/src/calculate_svd_from_file.c)
 
 We might also check the [Template Numerical Toolkit](https://math.nist.gov/tnt/).  Although I'm not sure that's necessary given how fast the C version is.
+
+## Equivalence between MATLAB and GSL C svd methods
+
+Here are the results in MATLAB for an example matrix, *M*:
+
+    M = 
+         1     0     0     0     2
+         0     0     3     0     0
+         0     0     0     0     0
+         0     2     0     0     0
+
+    U = 
+         0    -1     0     0
+        -1     0     0     0
+         0     0     0    -1
+         0     0    -1     0
+
+    S = 
+        3.0000         0         0         0         0
+             0    2.2361         0         0         0
+             0         0    2.0000         0         0
+             0         0         0         0         0
+
+    V = 
+             0   -0.4472         0         0   -0.8944
+             0         0   -1.0000         0         0
+       -1.0000         0         0         0         0
+             0         0         0    1.0000         0
+             0   -0.8944         0         0    0.4472
