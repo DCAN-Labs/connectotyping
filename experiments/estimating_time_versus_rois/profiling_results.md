@@ -53,3 +53,5 @@ Here are the results in MATLAB for an example matrix, *M*:
        -1.0000         0         0         0         0
              0         0         0    1.0000         0
              0   -0.8944         0         0    0.4472
+
+Now let us do the same with the C svd call.
