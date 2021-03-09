@@ -1,4 +1,4 @@
-  rois,  time_seconds,     corr,      svd,  c_svd_only, matlab_svd_econ_only
+  rois,  time_seconds,     corr,      svd,  c_svd_only, matlab_svd_econ_only, call_c_from_matlab
    256,       919.415,  174.624,   92.930,    0.000000,             0.049237 
    512,      6555.856,  882.776,  650.770,    0.000000,             0.1599
   1024,     41705.573, 3532.525, 4866.019,    0.000000,             0.79638
