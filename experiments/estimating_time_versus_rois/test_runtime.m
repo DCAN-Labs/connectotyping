@@ -14,7 +14,7 @@ while N < 2 * 92000
     % Save the file.
     writematrix(fake_y, file_name) 
     tic
-    [U,S,V] = svd(fake_y,'econ');
+    [U,S,V] = svd_lapack(fake_y,'econ');
     endtime = toc;
     disp([num2str(n_rois), ', ', num2str(endtime)]);
     

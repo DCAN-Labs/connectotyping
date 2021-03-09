@@ -26,7 +26,7 @@ for i=1:rep
         y_out=TC_out(:,j);
         A=TC_in(:,mask~=j);
         
-        [U S V]=svd(A,'econ');
+        [U, S, V]=svd(A,'econ');
         x_inv=zeros(rois-1,inc_frames);
         for l=1:max_SV
             x_inv=x_inv+V(:,l)*(1/S(l,l))*U(:,l)';

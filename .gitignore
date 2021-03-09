@@ -3,3 +3,6 @@ list.txt
 data/
 *.o
 src/c/project
+codegen/
+experiments/estimating_time_versus_rois/.panfs.240d1f0a.1615327880795112000
+run_svd.mexa64
