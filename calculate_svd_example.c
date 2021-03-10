@@ -8,8 +8,9 @@
 #include <gsl/gsl_linalg.h>
 
 #include "run_svd.h"
+#include "mex.h"
 
-void calculate_svd_example() {
+void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
   const size_t M = 4;
   const size_t N = 5;
   double A_data[] = {

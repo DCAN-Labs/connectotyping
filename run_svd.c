@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "run_svd.h"
+#include "mex.h"
 
 /*
   gsl_matrix_printf prints a matrix as a column vector.  This function
