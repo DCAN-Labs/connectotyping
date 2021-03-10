@@ -683,7 +683,6 @@ analyze_single(const mxArray *array_ptr)
 static void
 analyze_double(const mxArray *array_ptr)
 {
-
     mwSize total_num_of_elements, index;
     #if MX_HAS_INTERLEAVED_COMPLEX
         mxComplexDouble *pc;
@@ -714,6 +713,7 @@ analyze_double(const mxArray *array_ptr)
         for (index=0; index<total_num_of_elements; index++)  {
             mexPrintf("\t");
             display_subscript(array_ptr, index);
+                mexPrintf("got here\n");
             if (mxIsComplex(array_ptr)) {
                 mexPrintf(" = %g + %gi\n", *pr++, *pi++);
             }
@@ -727,6 +727,26 @@ analyze_double(const mxArray *array_ptr)
             }
         }
     #endif
+}
+
+static double*
+get_double_array(const mxArray *array_ptr)
+{
+    mwSize total_num_of_elements, index;
+    double *pr;
+    total_num_of_elements = mxGetNumberOfElements(array_ptr);
+    double* ptr = (double*) malloc(total_num_of_elements * sizeof(double)); 
+
+    pr = mxGetPr(array_ptr);
+    for (index=0; index < total_num_of_elements; index++)  {
+        mexPrintf("\t");
+        display_subscript(array_ptr, index);
+        mexPrintf(" = %g\n", *pr);
+        ptr[index] = *pr;
+        pr++;
+    }
+    
+    return ptr;
 }
 
 static double
@@ -899,20 +919,15 @@ analyze_class(const mxArray *array_ptr)
 }
 
 
-void call_svd(const size_t M, const size_t N) {
-  double A_data[] = {
-    1.0, 0.0, 0.0, 0.0, 2.0,
-    0.0, 0.0, 3.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 2.0, 0.0, 0.0, 0.0 };
+void call_svd(const size_t M, const size_t N, double A_data[]) {
   gsl_matrix_view A = gsl_matrix_view_array(A_data, M, N);
-  // gsl_matrix * B = gsl_matrix_alloc(N, M);
-  gsl_matrix * V = gsl_matrix_alloc(N, N);
-  gsl_vector * S = gsl_vector_alloc(N);
-  gsl_vector * work = gsl_vector_alloc(N);
+  gsl_matrix * B = gsl_matrix_alloc(N, M);
+  gsl_matrix * V = gsl_matrix_alloc(M, M);
+  gsl_vector * S = gsl_vector_alloc(M);
+  gsl_vector * work = gsl_vector_alloc(M);
 
-      // gsl_matrix_transpose_memcpy(B, &A.matrix);
-      gsl_linalg_SV_decomp(&A.matrix, V, S, work);
+      gsl_matrix_transpose_memcpy(B, &A.matrix);
+      gsl_linalg_SV_decomp(B, V, S, work);
 
   printf("U:\n");
   pretty_print(V);
@@ -921,7 +936,7 @@ void call_svd(const size_t M, const size_t N) {
   pretty_print_vector(S);
 
   printf("V:\n");
-  pretty_print(&A.matrix);
+  pretty_print(B);
 
   gsl_matrix_free(V);
   gsl_vector_free(S);
@@ -966,10 +981,18 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
         analyze_class(prhs[i]);
     }
     int m = (int) get_double(prhs[0]);
-    printf("m: %d\n", m);
-
     int n = (int) get_double(prhs[1]);
-    printf("n = %d\n", n);
     
-    call_svd(m, n);
+    int row = 0;
+    int col = 0;
+    double* A = (double*) get_double_array(prhs[2]);
+    for (row = 0; row < m; row++) {
+        for (col = 0; col < n; col++) {
+            printf("%f ", A[row * n + col]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+    
+    call_svd(m, n, A);
 }
