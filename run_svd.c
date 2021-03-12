@@ -1,23 +1,21 @@
 #include <stdio.h>
-#include <gsl/gsl_blas.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_vector.h>
 #include <gsl/gsl_linalg.h>
-#include <time.h>
 
-#include "run_svd.h"
-#include "mex.h"
-
-/*
-  gsl_matrix_printf prints a matrix as a column vector.  This function
-  prints a matrix in block form.
-*/
 void pretty_print(const gsl_matrix * M)
 {
   // Get the dimension of the matrix.
   int rows = M->size1;
+  printf("rows: %d\n", rows);
   int cols = M->size2;
+  printf("rows: %d\n", cols);
   // Now print out the data in a square format.
-  int i;
-  int j;
+  int i, j;
   for (i = 0; i < rows; i++){
     for (j = 0; j < cols; j++){
       printf("%f ", gsl_matrix_get(M, i, j));
@@ -29,52 +27,57 @@ void pretty_print(const gsl_matrix * M)
 
 void pretty_print_vector(const gsl_vector * M)
 {
-  int j;
+    int j;
   int cols = M->size;
-    for (j = 0; j < cols; j++){
+    for(j = 0; j < cols; j++){
       printf("%f ", gsl_vector_get(M, j));
     }
   printf("\n");
 }
 
-int run_svd(const gsl_matrix * a) {
-  gsl_matrix *aa;
-  int m = a->size1;
-  int n = a->size2;
-  if (m >= n) {
-    aa = gsl_matrix_alloc(m, n);
-    gsl_matrix_memcpy(aa, a);
+void run_svd(const size_t M, const size_t N, double A_data[])
+{
+  gsl_matrix * B;
+  gsl_matrix * V;
+  gsl_vector * S;
+  gsl_vector * work;
+  if (N > M) {
+    gsl_matrix_view A = gsl_matrix_view_array(A_data, M, N);
+    B = gsl_matrix_alloc(N, M);
+    V = gsl_matrix_alloc(M, M);
+    S = gsl_vector_alloc(M);
+    work = gsl_vector_alloc(M);
+
+    gsl_matrix_transpose_memcpy(B, &A.matrix);
   } else {
-    aa = gsl_matrix_alloc(n, m);
-	// Need to transpose the input
-    gsl_matrix_transpose_memcpy(aa, a);
+    gsl_matrix_view A = gsl_matrix_view_array(A_data, M, N);
+    B = gsl_matrix_alloc(M, N);
+    V = gsl_matrix_alloc(N, N);
+    S = gsl_vector_alloc(N);
+    work = gsl_vector_alloc(N);
+
+    gsl_matrix_memcpy(B, &A.matrix);
   }
 
-  m = aa->size2;
-  gsl_matrix * V = gsl_matrix_alloc(m, m);
-  gsl_vector * S = gsl_vector_alloc(m);
-  gsl_vector * work = gsl_vector_alloc(m);
+  gsl_linalg_SV_decomp(B, V, S, work);
 
-  /**
-   * On output the matrix A is replaced by U. The diagonal elements of 
-   * the singular value matrix S are stored in the vector S. The 
-   * singular values are non-negative and form a non-increasing sequence 
-   * from S_1 to S_N. The matrix V contains the elements of V in 
-   * untransposed form. To form the product U S V^T it is necessary to 
-   * take the transpose of V. A workspace of length N is required in 
-   * work.
-   */
-  gsl_linalg_SV_decomp(aa, V, S, work);
-  printf("U:\n");
-  pretty_print(aa);
-  printf("S:\n");
-  pretty_print_vector(S);
-  printf("V:\n");
-  pretty_print(V);
-
+  if (N > M) {
+    printf("U:\n");
+    pretty_print(V);
+    printf("S:\n");
+    pretty_print_vector(S);
+    printf("V:\n");
+    pretty_print(B);
+  } else {
+    printf("U:\n");
+    pretty_print(B);
+    printf("S:\n");
+    pretty_print_vector(S);
+    printf("V:\n");
+    pretty_print(V);
+  }
+  gsl_matrix_free(B);
   gsl_matrix_free(V);
   gsl_vector_free(S);
   gsl_vector_free(work);
-
-  return 0;
 }

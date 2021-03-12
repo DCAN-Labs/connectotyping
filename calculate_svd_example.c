@@ -713,7 +713,6 @@ analyze_double(const mxArray *array_ptr)
         for (index=0; index<total_num_of_elements; index++)  {
             mexPrintf("\t");
             display_subscript(array_ptr, index);
-                mexPrintf("got here\n");
             if (mxIsComplex(array_ptr)) {
                 mexPrintf(" = %g + %gi\n", *pr++, *pi++);
             }
@@ -729,24 +728,28 @@ analyze_double(const mxArray *array_ptr)
     #endif
 }
 
-static double*
-get_double_array(const mxArray *array_ptr)
+static double *
+get_double_array(const mxArray *array_ptr, int M, int N)
 {
     mwSize total_num_of_elements, index;
     double *pr;
     total_num_of_elements = mxGetNumberOfElements(array_ptr);
-    double* ptr = (double*) malloc(total_num_of_elements * sizeof(double)); 
+    double* A_data = (double*) malloc(total_num_of_elements * sizeof(double)); 
 
     pr = mxGetPr(array_ptr);
     for (index=0; index < total_num_of_elements; index++)  {
         mexPrintf("\t");
         display_subscript(array_ptr, index);
         mexPrintf(" = %g\n", *pr);
-        ptr[index] = *pr;
+        A_data[index] = *pr;
         pr++;
     }
+    gsl_matrix_view A = gsl_matrix_view_array(A_data, M, N);
+    gsl_matrix * B;
+    B = gsl_matrix_alloc(N, M);
+    gsl_matrix_transpose_memcpy(B, &A.matrix);
     
-    return ptr;
+    return B;
 }
 
 static double
@@ -801,10 +804,42 @@ analyze_full(const mxArray *numeric_array_ptr)
     }
 }
 
-
 /* Display the subscript associated with the given index. */ 
 void
 display_subscript(const mxArray *array_ptr, mwSize index)
+{
+    mwSize     inner, subindex, total, d, q, number_of_dimensions;
+    mwSize       *subscript;
+    const mwSize *dims;
+
+    number_of_dimensions = mxGetNumberOfDimensions(array_ptr);
+    subscript = mxCalloc(number_of_dimensions, sizeof(mwSize));
+    dims = mxGetDimensions(array_ptr);
+
+    mexPrintf("(");
+    subindex = index;
+    for (d = number_of_dimensions-1; ; d--) { /* loop termination is at the end */
+
+        for (total=1, inner=0; inner<d; inner++) {
+            total *= dims[inner];
+        }
+        subscript[d] = subindex / total;
+        subindex = subindex % total;
+        if (d == 0) {
+            break;
+        }
+    }
+
+    for (q=0; q<number_of_dimensions-1; q++) {
+        mexPrintf("%d,", subscript[q] + 1);
+    }
+    mexPrintf("%d)", subscript[number_of_dimensions-1] + 1);
+
+    mxFree(subscript);
+}
+
+int
+get_i_subscript(const mxArray *array_ptr, mwSize index)
 {
     mwSize     inner, subindex, total, d, q, number_of_dimensions;
     mwSize       *subscript;
@@ -966,33 +1001,22 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
         #endif
     #endif
 
-
-    /* Look at each input (right-hand-side) argument. */
-    for (i=0; i<nrhs; i++)  {
-        mexPrintf("nrhs: %d\n", nrhs);
-        mexPrintf("\n\n");
-        /* Display a top banner. */
-        mexPrintf("------------------------------------------------\n");
-        /* Display which argument */
-        mexPrintf("Name: %s%d%c\n", "prhs[",i,']'); 
-        mexPrintf("%d\n", prhs[i]);
-
-        get_characteristics(prhs[i]);
-        analyze_class(prhs[i]);
-    }
     int m = (int) get_double(prhs[0]);
+    printf("m: %d\n", m);
     int n = (int) get_double(prhs[1]);
+    printf("n: %d\n", n);
     
     int row = 0;
     int col = 0;
-    double* A = (double*) get_double_array(prhs[2]);
+    double *mexArray =  mxGetPr(prhs[2]);
+    printf("A:\n");
     for (row = 0; row < m; row++) {
         for (col = 0; col < n; col++) {
-            printf("%f ", A[row * n + col]);
+            printf("%f ", mexArray[row * n + col]);
         }
         printf("\n");
     }
     printf("\n");
     
-    call_svd(m, n, A);
+    call_svd(m, n, mexArray);
 }
