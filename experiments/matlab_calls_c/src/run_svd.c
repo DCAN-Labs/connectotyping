@@ -16,9 +16,7 @@ void pretty_print(const gsl_matrix * M)
 {
   // Get the dimension of the matrix.
   int rows = M->size1;
-  printf("rows: %d\n", rows);
   int cols = M->size2;
-  printf("rows: %d\n", cols);
   // Now print out the data in a square format.
   int i, j;
   for (i = 0; i < rows; i++){
@@ -32,12 +30,12 @@ void pretty_print(const gsl_matrix * M)
 
 void pretty_print_vector(const gsl_vector * M)
 {
-    int j;
+  int j;
   int cols = M->size;
-    for(j = 0; j < cols; j++){
-      printf("%f ", gsl_vector_get(M, j));
-    }
-  printf("\n");
+  for(j = 0; j < cols; j++){
+    printf("%f ", gsl_vector_get(M, j));
+  }
+  printf("\n\n");
 }
 
 void run_svd_example() {
@@ -56,8 +54,8 @@ void run_svd(const size_t M, const size_t N, double A_data[])
   gsl_matrix * V;
   gsl_vector * S;
   gsl_vector * work;
+  gsl_matrix_view A = gsl_matrix_view_array(A_data, M, N);
   if (N > M) {
-    gsl_matrix_view A = gsl_matrix_view_array(A_data, M, N);
     B = gsl_matrix_alloc(N, M);
     V = gsl_matrix_alloc(M, M);
     S = gsl_vector_alloc(M);
@@ -65,7 +63,6 @@ void run_svd(const size_t M, const size_t N, double A_data[])
 
     gsl_matrix_transpose_memcpy(B, &A.matrix);
   } else {
-    gsl_matrix_view A = gsl_matrix_view_array(A_data, M, N);
     B = gsl_matrix_alloc(M, N);
     V = gsl_matrix_alloc(N, N);
     S = gsl_vector_alloc(N);
@@ -79,15 +76,16 @@ void run_svd(const size_t M, const size_t N, double A_data[])
   if (N > M) {
     printf("U:\n");
     pretty_print(V);
-    printf("S:\n");
-    pretty_print_vector(S);
-    printf("V:\n");
-    pretty_print(B);
   } else {
     printf("U:\n");
     pretty_print(B);
-    printf("S:\n");
-    pretty_print_vector(S);
+  }
+  printf("S:\n");
+  pretty_print_vector(S);
+  if (N > M) {
+    printf("V:\n");
+    pretty_print(B);
+  } else {
     printf("V:\n");
     pretty_print(V);
   }

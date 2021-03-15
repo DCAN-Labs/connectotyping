@@ -16,35 +16,6 @@ mxClassID   analyze_class(const mxArray *array_ptr);
 int m;
 int n;
 
-void pretty_print(const gsl_matrix * M)
-{
-  // Get the dimension of the matrix.
-  int rows = M->size1;
-  printf("rows: %d\n", rows);
-  int cols = M->size2;
-  printf("rows: %d\n", cols);
-  // Now print out the data in a square format.
-  int i, j;
-  for (i = 0; i < rows; i++){
-    for (j = 0; j < cols; j++){
-      printf("%f ", gsl_matrix_get(M, i, j));
-    }
-    printf("\n");
-  }
-  printf("\n");
-}
-
-void pretty_print_vector(const gsl_vector * M)
-{
-    int j;
-  int cols = M->size;
-    for(j = 0; j < cols; j++){
-      printf("%f ", gsl_vector_get(M, j));
-    }
-  printf("\n");
-}
-
-
 /* Pass analyze_cell a pointer to a cell mxArray.  Each element
    in a cell mxArray is called a "cell"; each cell holds zero
    or one mxArray.  analyze_cell accesses each cell and displays
