@@ -5,5 +5,8 @@ data/
 src/c/project
 codegen/
 experiments/estimating_time_versus_rois/.panfs.240d1f0a.1615327880795112000
-run_svd.mexa64
+*.mexa64
 .panfs.230d1f0a.16154089009778000
+*.~
+experiments/matlab_calls_c/Makefile~
+experiments/matlab_calls_c/project

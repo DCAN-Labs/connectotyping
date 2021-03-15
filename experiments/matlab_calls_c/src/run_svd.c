@@ -1,11 +1,16 @@
+/****************************************************************************
+ * Paul Reiners
+ ***************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
 #include <gsl/gsl_math.h>
-#include <gsl/gsl_matrix.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_linalg.h>
+
+#include "../include/run_svd.h"
 
 void pretty_print(const gsl_matrix * M)
 {
@@ -33,6 +38,16 @@ void pretty_print_vector(const gsl_vector * M)
       printf("%f ", gsl_vector_get(M, j));
     }
   printf("\n");
+}
+
+void run_svd_example() {
+  const size_t M = 4;
+  const size_t N = 5;
+  double A_data[] = {1.0, 0.0, 0.0, 0.0, 2.0,
+                     0.0, 0.0, 3.0, 0.0, 0.0,
+		     0.0, 0.0, 0.0, 0.0, 0.0,
+                     0.0, 2.0, 0.0, 0.0, 0.0};
+  run_svd(M, N, A_data);
 }
 
 void run_svd(const size_t M, const size_t N, double A_data[])
