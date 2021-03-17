@@ -35,28 +35,8 @@ void pretty_print_vector(const gsl_vector * M)
   printf("\n\n");
 }
 
-void run_svd(const size_t M, const size_t N, double A_data[])
+void run_svd(const size_t M, const size_t N, double A_data[], gsl_matrix * B, gsl_matrix * V, gsl_vector * S, gsl_vector * work)
 {
-  gsl_matrix * B;
-  gsl_matrix * V;
-  gsl_vector * S;
-  gsl_vector * work;
-  gsl_matrix_view A = gsl_matrix_view_array(A_data, M, N);
-  if (N > M) {
-    B = gsl_matrix_alloc(N, M);
-    V = gsl_matrix_alloc(M, M);
-    S = gsl_vector_alloc(M);
-    work = gsl_vector_alloc(M);
-
-    gsl_matrix_transpose_memcpy(B, &A.matrix);
-  } else {
-    B = gsl_matrix_alloc(M, N);
-    V = gsl_matrix_alloc(N, N);
-    S = gsl_vector_alloc(N);
-    work = gsl_vector_alloc(N);
-
-    gsl_matrix_memcpy(B, &A.matrix);
-  }
 
   gsl_linalg_SV_decomp(B, V, S, work);
 
@@ -97,8 +77,6 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
     printf("nlhs: $d\n", nlhs);
     printf("nlhs: $d\n", nrhs);
     int i;
-    (void) nlhs;     /* unused parameters */
-    (void) plhs;
 
     /* Check to see if we are on a platform that does not support the compatibility layer. */
     #if defined(_LP64) || defined (_WIN64)
@@ -117,7 +95,6 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
     printf("m: %d\n", m);
     int n = (int) get_double(prhs[1]);
     printf("n: %d\n", n);
-    
     int row = 0;
     int col = 0;
     double *mexArray =  mxGetPr(prhs[2]);
@@ -129,6 +106,41 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
         printf("\n");
     }
     printf("\n");
-    
-    run_svd(m, n, mexArray);
+   
+  gsl_matrix * B;
+  gsl_matrix * V;
+  gsl_vector * S;
+  gsl_vector * work;
+  gsl_matrix_view A = gsl_matrix_view_array(mexArray, m, n);
+  if (n > m) {
+    B = gsl_matrix_alloc(n, m);
+    V = gsl_matrix_alloc(m, m);
+    S = gsl_vector_alloc(m);
+    work = gsl_vector_alloc(m);
+
+    gsl_matrix_transpose_memcpy(B, &A.matrix);
+  } else {
+    B = gsl_matrix_alloc(m, n);
+    V = gsl_matrix_alloc(n, n);
+    S = gsl_vector_alloc(n);
+    work = gsl_vector_alloc(n);
+
+    gsl_matrix_memcpy(B, &A.matrix);
+  }
+
+    run_svd(m, n, mexArray, B, V, S, work);
+    mwSize index;
+    double* pointer;                             /* pointer to real data in new array */
+ 
+    if (m <= n) {
+      plhs[0] = mxCreateNumericMatrix(m, m, mxDOUBLE_CLASS, mxREAL);
+      pointer = mxGetPr(plhs[0]);
+    } else {
+      plhs[0] = mxCreateNumericMatrix(n, n, mxDOUBLE_CLASS, mxREAL);
+      pointer = mxGetPr(plhs[0]);
+   }
+
+    for (i = 0; i < 16; i++) {
+  pointer[i] = gsl_matrix_get(B, i / 4, i % 4);
+    }
 }
