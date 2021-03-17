@@ -9,36 +9,6 @@
 
 #include "mex.h"
 
-void pretty_print(const gsl_matrix * M)
-{
-  // Get the dimension of the matrix.
-  int rows = M->size1;
-  int cols = M->size2;
-  // Now print out the data in a square format.
-  int i, j;
-  for (i = 0; i < rows; i++){
-    for (j = 0; j < cols; j++){
-      printf("%f ", gsl_matrix_get(M, i, j));
-    }
-    printf("\n");
-  }
-  printf("\n");
-}
-
-void pretty_print_vector(const gsl_vector * M)
-{
-  int j;
-  int cols = M->size;
-  for(j = 0; j < cols; j++){
-    printf("%f ", gsl_vector_get(M, j));
-  }
-  printf("\n\n");
-}
-
-void run_svd(gsl_matrix *B, gsl_matrix *V, gsl_vector *S, gsl_vector *work) {
-  gsl_linalg_SV_decomp(B, V, S, work);
-}
-
 static double
 get_double(const mxArray *array_ptr)
 {
@@ -125,7 +95,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
     gsl_matrix_memcpy(B, &A.matrix);
   }
 
-    run_svd(B, V, S, work);
+    gsl_linalg_SV_decomp(B, V, S, work);
 
     /* call custom routines to copy data as transpose */
     if (m < n) {
