@@ -147,9 +147,9 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
     run_svd(m, n, mexArray, B, V, S, work);
 
     /* call custom routines to copy data as transpose */
-    plhs[0] = gslmatrix2MATLAB(B);
+    plhs[0] = gslmatrix2MATLAB(V);
     plhs[1] = gslvector2MATLAB(S);
-    plhs[2] = gslmatrix2MATLAB(V);
+    plhs[2] = gslmatrix2MATLAB(B);
 
   gsl_matrix_free(B);
   gsl_matrix_free(V);
