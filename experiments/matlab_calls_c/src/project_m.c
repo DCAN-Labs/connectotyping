@@ -35,9 +35,7 @@ void pretty_print_vector(const gsl_vector * M)
   printf("\n\n");
 }
 
-void run_svd(
-	const size_t M, const size_t N, double A_data[], gsl_matrix *B, 
-	gsl_matrix *V, gsl_vector *S, gsl_vector *work) {
+void run_svd(gsl_matrix *B, gsl_matrix *V, gsl_vector *S, gsl_vector *work) {
   gsl_linalg_SV_decomp(B, V, S, work);
 }
 
@@ -127,7 +125,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
     gsl_matrix_memcpy(B, &A.matrix);
   }
 
-    run_svd(m, n, mexArray, B, V, S, work);
+    run_svd(B, V, S, work);
 
     /* call custom routines to copy data as transpose */
     if (m < n) {
