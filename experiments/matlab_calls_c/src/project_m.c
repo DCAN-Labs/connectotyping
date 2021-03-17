@@ -145,11 +145,6 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
   }
 
     run_svd(m, n, mexArray, B, V, S, work);
-    
-    nlhs = 3; // delete this line
-    mxSetPr(plhs[0], B); // delete this line
-    mxSetPr(plhs[1], S); // delete this line
-    mxSetPr(plhs[2], V); // delete this line
 
     /* call custom routines to copy data as transpose */
     plhs[0] = gslmatrix2MATLAB(B);
