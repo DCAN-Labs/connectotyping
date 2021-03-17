@@ -56,10 +56,6 @@ void run_svd(const size_t M, const size_t N, double A_data[], gsl_matrix * B, gs
     printf("V:\n");
     pretty_print(V);
   }
-  gsl_matrix_free(B);
-  gsl_matrix_free(V);
-  gsl_vector_free(S);
-  gsl_vector_free(work);
 }
 
 static double
@@ -72,40 +68,60 @@ get_double(const mxArray *array_ptr)
     return result;
 }
 
+/* Create MATLAB mxArray from gsl_vector */
+mxArray *gslvector2MATLAB(gsl_vector *V)
+{
+    mxArray *mx;
+    double *data, *target;
+    size_t i, n, stride;
+    if( V ) {
+        n = V->size;
+        data = V->data;
+        stride = V->stride;
+        mx = mxCreateDoubleMatrix(n,1,mxREAL);
+        target = (double *) mxGetData(mx);
+        while( n-- ) {
+            *target++ = *data;
+            data += stride;
+        }
+    } else {
+        mx = mxCreateDoubleMatrix(0,0,mxREAL);
+    }
+    return mx;
+}
+
+/* Create MATLAB mxArray from gsl_matrix */
+mxArray *gslmatrix2MATLAB(gsl_matrix *M)
+{
+    mxArray *mx;
+    double *data, *target;
+    size_t i, j, m, n;
+    if( M ) {
+        m = M->size1;
+        n = M->size2;
+        data = M->data;
+        mx = mxCreateDoubleMatrix(m,n,mxREAL);
+        target = (double *) mxGetData(mx);
+        for( i=0; i<m; i++ ) {
+            for( j=0; j<n; j++ ) {
+                target[i+j*m] = data[j]; /* tranpose */
+            }
+            data += M->tda;
+        }
+    } else {
+        mx = mxCreateDoubleMatrix(0,0,mxREAL);
+    }
+    return mx;
+}
+
 void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
-    printf("Entering mexFunction\n");
-    printf("nlhs: $d\n", nlhs);
-    printf("nlhs: $d\n", nrhs);
     int i;
 
-    /* Check to see if we are on a platform that does not support the compatibility layer. */
-    #if defined(_LP64) || defined (_WIN64)
-        #ifdef MX_COMPAT_32
-            for (i=0; i<nrhs; i++)  {
-                if (mxIsSparse(prhs[i])) {
-                    mexErrMsgIdAndTxt("MATLAB:explore:NoSparseCompat",
-                    "MEX-files compiled on a 64-bit platform that use sparse array functions "
-                    "need to be compiled using -largeArrayDims.");
-                }
-            }
-        #endif
-    #endif
+   /* You should put code here to check nrhs, nlhs, prhs[0], prhs[1], prhs[2] */
 
     int m = (int) get_double(prhs[0]);
-    printf("m: %d\n", m);
     int n = (int) get_double(prhs[1]);
-    printf("n: %d\n", n);
-    int row = 0;
-    int col = 0;
     double *mexArray =  mxGetPr(prhs[2]);
-    printf("A:\n");
-    for (row = 0; row < m; row++) {
-        for (col = 0; col < n; col++) {
-            printf("%f ", mexArray[row * n + col]);
-        }
-        printf("\n");
-    }
-    printf("\n");
    
   gsl_matrix * B;
   gsl_matrix * V;
@@ -129,18 +145,19 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
   }
 
     run_svd(m, n, mexArray, B, V, S, work);
-    mwSize index;
-    double* pointer;                             /* pointer to real data in new array */
- 
-    if (m <= n) {
-      plhs[0] = mxCreateNumericMatrix(m, m, mxDOUBLE_CLASS, mxREAL);
-      pointer = mxGetPr(plhs[0]);
-    } else {
-      plhs[0] = mxCreateNumericMatrix(n, n, mxDOUBLE_CLASS, mxREAL);
-      pointer = mxGetPr(plhs[0]);
-   }
+    
+    nlhs = 3; // delete this line
+    mxSetPr(plhs[0], B); // delete this line
+    mxSetPr(plhs[1], S); // delete this line
+    mxSetPr(plhs[2], V); // delete this line
 
-    for (i = 0; i < 16; i++) {
-  pointer[i] = gsl_matrix_get(B, i / 4, i % 4);
-    }
+    /* call custom routines to copy data as transpose */
+    plhs[0] = gslmatrix2MATLAB(B);
+    plhs[1] = gslvector2MATLAB(S);
+    plhs[2] = gslmatrix2MATLAB(V);
+
+  gsl_matrix_free(B);
+  gsl_matrix_free(V);
+  gsl_vector_free(S);
+  gsl_vector_free(work);
 }

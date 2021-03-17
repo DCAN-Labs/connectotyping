@@ -1,6 +1,9 @@
 A_data = [1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0];
 
-x = project_m(4, 5, A_data);
+[U, S, V] = project_m(4, 5, A_data);
 disp('U:');
-disp(x);
-disp(fprintf('\n'));
+disp(U);
+disp('S:');
+disp(S);
+disp('V:');
+disp(V);
