@@ -35,27 +35,10 @@ void pretty_print_vector(const gsl_vector * M)
   printf("\n\n");
 }
 
-void run_svd(const size_t M, const size_t N, double A_data[], gsl_matrix * B, gsl_matrix * V, gsl_vector * S, gsl_vector * work)
-{
-
+void run_svd(
+	const size_t M, const size_t N, double A_data[], gsl_matrix *B, 
+	gsl_matrix *V, gsl_vector *S, gsl_vector *work) {
   gsl_linalg_SV_decomp(B, V, S, work);
-
-  if (N > M) {
-    printf("U:\n");
-    pretty_print(V);
-  } else {
-    printf("U:\n");
-    pretty_print(B);
-  }
-  printf("S:\n");
-  pretty_print_vector(S);
-  if (N > M) {
-    printf("V:\n");
-    pretty_print(B);
-  } else {
-    printf("V:\n");
-    pretty_print(V);
-  }
 }
 
 static double
@@ -147,9 +130,14 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
     run_svd(m, n, mexArray, B, V, S, work);
 
     /* call custom routines to copy data as transpose */
-    plhs[0] = gslmatrix2MATLAB(V);
+    if (m < n) {
+		plhs[0] = gslmatrix2MATLAB(V);
+		plhs[2] = gslmatrix2MATLAB(B);
+	} else {
+		plhs[2] = gslmatrix2MATLAB(V);
+		plhs[0] = gslmatrix2MATLAB(B);
+	}
     plhs[1] = gslvector2MATLAB(S);
-    plhs[2] = gslmatrix2MATLAB(B);
 
   gsl_matrix_free(B);
   gsl_matrix_free(V);
