@@ -65,7 +65,7 @@ mxArray *gslmatrix2MATLAB(gsl_matrix *M)
     return mx;
 }
 
-void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     int i;
 
    /* You should put code here to check nrhs, nlhs, prhs[0], prhs[1], prhs[2] */
@@ -74,40 +74,40 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
     int n = (int) get_double(prhs[1]);
     double *mexArray =  mxGetPr(prhs[2]);
    
-  gsl_matrix * B;
+  gsl_matrix * A;
   gsl_matrix * V;
   gsl_vector * S;
   gsl_vector * work;
-  gsl_matrix_view A = gsl_matrix_view_array(mexArray, m, n);
+  gsl_matrix_view A_view = gsl_matrix_view_array(mexArray, m, n);
   if (n > m) {
-    B = gsl_matrix_alloc(n, m);
+    A = gsl_matrix_alloc(n, m);
     V = gsl_matrix_alloc(m, m);
     S = gsl_vector_alloc(m);
     work = gsl_vector_alloc(m);
 
-    gsl_matrix_transpose_memcpy(B, &A.matrix);
+    gsl_matrix_transpose_memcpy(A, &A_view.matrix);
   } else {
-    B = gsl_matrix_alloc(m, n);
+    A = gsl_matrix_alloc(m, n);
     V = gsl_matrix_alloc(n, n);
     S = gsl_vector_alloc(n);
     work = gsl_vector_alloc(n);
 
-    gsl_matrix_memcpy(B, &A.matrix);
+    gsl_matrix_memcpy(A, &A_view.matrix);
   }
 
-    gsl_linalg_SV_decomp(B, V, S, work);
+    gsl_linalg_SV_decomp(A, V, S, work);
 
     /* call custom routines to copy data as transpose */
     if (m < n) {
 		plhs[0] = gslmatrix2MATLAB(V);
-		plhs[2] = gslmatrix2MATLAB(B);
+		plhs[2] = gslmatrix2MATLAB(A);
 	} else {
 		plhs[2] = gslmatrix2MATLAB(V);
-		plhs[0] = gslmatrix2MATLAB(B);
+		plhs[0] = gslmatrix2MATLAB(A);
 	}
     plhs[1] = gslvector2MATLAB(S);
 
-  gsl_matrix_free(B);
+  gsl_matrix_free(A);
   gsl_matrix_free(V);
   gsl_vector_free(S);
   gsl_vector_free(work);
