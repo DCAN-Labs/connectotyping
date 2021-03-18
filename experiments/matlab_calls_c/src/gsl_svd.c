@@ -99,7 +99,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		// Compute the SVD using the modified Golub-Reinsch algorithm, 
 		// which is faster for M>>N. It requires the vector work of 
 		// length N and the N-by-N matrix X as additional working space.
-		printf("Using the modified Golub-Reinsch algorithm with m = %d and n = %d", m, n);
+		printf("Using the modified Golub-Reinsch algorithm with m = %d and n = %d\n", m, n);
 		gsl_matrix * X = gsl_matrix_alloc(n, n);
 		gsl_linalg_SV_decomp_mod (A, X, V, S, work);
 		gsl_matrix_free(X);
