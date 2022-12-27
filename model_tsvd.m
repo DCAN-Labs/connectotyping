@@ -40,5 +40,5 @@ end
 
 
 
-mr=squeeze(mean(R,1));
+mr=squeeze(tanh(mean(atanh(R),1)));
 [m, SV]=max(mr,[],2);
