@@ -39,6 +39,19 @@ parfor i=1:rep
 end
 
 
-
+%% Original logic to get the best number of components
 mr=squeeze(tanh(mean(atanh(R),1)));
 [m, SV]=max(mr,[],2);
+%% updating the logic
+%1. Across subjects, calculate the largest explain variance 
+%2. For each ROI, identify the global maxima, ie the number of components
+%that maximize out of sample explained variance 
+
+% Z=atanh(R);
+% if sum(isinf(Z(:)))==0
+%     sumR=squeeze(nansum(Z,1));
+% else
+%     sumR=squeeze(nansum(R,1));
+% end
+sumR=squeeze(nansum(R,1));
+[maxR, I]=max(sumR,[],2);
