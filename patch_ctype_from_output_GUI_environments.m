@@ -48,7 +48,7 @@ while q<=v
     switch lower(varargin{q})
         
         case 'n_surviving_frames'
-            frames_count=varargin{q+1};
+            n_surviving_frames=varargin{q+1};
             q = q+1;
             
             
