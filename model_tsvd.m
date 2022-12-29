@@ -55,3 +55,4 @@ mr=squeeze(tanh(mean(atanh(R),1)));
 % end
 sumR=squeeze(nansum(R,1));
 [maxR, I]=max(sumR,[],2);
+SV(:)=I(:);
