@@ -1,0 +1,78 @@
+function [model, R_model] = make_model_tsvd_extended(signal, options)
+% make_model_tsvd_extended - Truncated SVD-based model estimation for large inputs
+% Optimized with parfor, batched SVD, and vectorized matrix operations,
+% Enhanced with MEX
+%
+% Authors: Oscar Miranda-Dominguez, Kody DeGolier
+% INPUTS:
+%   signal:    [frames x rois] time-series matrix
+%   options:   struct with fields:
+%       min_frames  - number of frames per subsample
+%       rep_model   - number of model repetitions
+%       SV          - [1 x rois] number of SVs to keep per ROI
+%       use_mex     - (optional) true to use MEX acceleration
+%
+% OUTPUTS:
+%   model:        A model of functional connectivity using truncated SVD (TSVD) on randomly subsampled time series data
+%   R_model:      The correlation within the model
+
+% Parameters
+inc_frames = options.min_frames;
+rep = options.rep_model;
+[frames, rois] = size(signal);
+mask = 1:rois;
+SV = options.SV;
+use_mex = isfield(options, 'use_mex') && options.use_mex;
+
+% Preallocate
+local_model = zeros(rois, rois, rep, 'like', signal);
+local_R = zeros(rois, rois, rep, 'like', signal);
+
+
+% Parallel loop over repetitions
+parfor i = 1:rep
+    ix = randperm(frames);
+    ix_in = ix(1:inc_frames);
+    TC_in = signal(ix_in, :);
+
+    % Fast correlation using matrix ops
+    R = (TC_in' * TC_in) / (inc_frames - 1);
+    norms = sqrt(diag(R));
+    R = R ./ (norms * norms');  % Normalize to correlation
+    local_R(:, :, i) = R;
+
+    if use_mex
+        temp_model - model_tsvd_core(TC_in, SV);
+    else
+
+    temp_model = zeros(rois, rois, 'like', signal);  % Local copy
+
+    for j = 1:rois
+        y_in = TC_in(:, j);
+        A = TC_in(:, mask ~= j);
+
+        % Truncated SVD
+        [U, S, V] = svd(A, 'econ');
+        k = SV(j);
+        Uk = U(:, 1:k);
+        Sk = S(1:k, 1:k);
+        Vk = V(:, 1:k);
+
+        % Fast pseudoinverse and regression
+        x_inv = Vk * diag(1 ./ diag(Sk)) * Uk';
+        temp_model(j, mask ~= j) = x_inv * y_in;
+    end
+    end
+
+    local_model(:, :, i) = temp_model;
+end
+
+% Average model and correlation
+model = mean(local_model, 3);
+
+% Fisher Z-transform, average, then inverse
+local_Z = atanh(local_R);
+mean_Z = mean(local_Z, 3);
+R_model = tanh(mean_Z);
+
+end
